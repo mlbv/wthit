@@ -84,12 +84,14 @@ public class SpriteBarComponent implements ITooltipComponent {
         final ScreenRectangle scissorArea;
         final ScreenRectangle bounds;
         final TextureSetup textureSetup;
-        final int mx, my;
+        final int x, y, mx, my;
 
         private ForegroundRenderState(Matrix3x2f pose, ScreenRectangle scissorArea, ScreenRectangle bounds, int mx, int my) {
             this.pose = pose;
             this.scissorArea = scissorArea;
-            this.bounds = bounds;
+            this.bounds = scissorArea.intersection(bounds.transformMaxBounds(pose));
+            this.x = bounds.left();
+            this.y = bounds.top();
             this.mx = mx;
             this.my = my;
 
@@ -99,10 +101,10 @@ public class SpriteBarComponent implements ITooltipComponent {
 
         @Override
         public void buildVertices(VertexConsumer buffer) {
-            for (var px1 = bounds.left(); px1 < mx; px1 += regionWidth) {
+            for (var px1 = x; px1 < mx; px1 += regionWidth) {
                 var px2 = px1 + regionWidth;
 
-                for (var py1 = bounds.top(); py1 < my; py1 += regionHeight) {
+                for (var py1 = y; py1 < my; py1 += regionHeight) {
                     var py2 = py1 + regionHeight;
 
                     buffer.addVertexWith2DPose(pose, px1, py2).setUv(u0, v1).setColor(spriteTint);
